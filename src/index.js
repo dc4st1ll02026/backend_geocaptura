@@ -20,6 +20,7 @@ app.use(cors({
     'http://localhost:3000',
     'http://146.190.208.76',
     'http://146.190.208.76:80',
+    'https://146.190.208.76',
   ],
   credentials: true,
 }));
