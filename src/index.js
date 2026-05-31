@@ -21,6 +21,7 @@ app.use(cors({
     'http://146.190.208.76',
     'http://146.190.208.76:80',
     'https://146.190.208.76',
+    'https://geocaptura.duckdns.org',
   ],
   credentials: true,
 }));
