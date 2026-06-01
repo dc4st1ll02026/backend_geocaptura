@@ -14,6 +14,7 @@ router.put('/asignar-lote', roleMiddleware('admin'), edificiosController.asignar
 router.put('/:codigo', roleMiddleware('admin'), edificiosController.update);
 router.delete('/:codigo', roleMiddleware('admin'), edificiosController.remove);
 router.put('/:codigo/asignar', roleMiddleware('admin'), edificiosController.asignarEdificio);
+router.put('/:codigo/reset-sincronizacion', roleMiddleware('admin'), edificiosController.resetSincronizacion);
 router.put('/:codigo/coordenada', roleMiddleware('tecnico', 'supervisor'), edificiosController.updateCoordenada);
 router.post('/:codigo/sincronizar', roleMiddleware('tecnico', 'supervisor'), edificiosController.sincronizar);
 

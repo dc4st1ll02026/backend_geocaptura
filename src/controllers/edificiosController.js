@@ -384,6 +384,43 @@ async function getEdificiosPorTecnico(req, res) {
   }
 }
 
+async function resetSincronizacion(req, res) {
+  const { codigo } = req.params;
+  const adminId = req.usuario.id;
+
+  try {
+    const edificioResult = await pool.query('SELECT * FROM edificios WHERE codigo = $1', [codigo]);
+    if (edificioResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Edificio no encontrado' });
+    }
+
+    const edificio = edificioResult.rows[0];
+
+    await pool.query(
+      `UPDATE edificios 
+       SET estado = 'pendiente', lat = NULL, lng = NULL, accuracy = NULL, 
+           captura_timestamp = NULL, sync_timestamp = NULL, tecnico_id = NULL, updated_at = NOW() 
+       WHERE codigo = $1 RETURNING *`,
+      [codigo]
+    );
+
+    await pool.query('DELETE FROM coordenadas WHERE edificio_codigo = $1', [codigo]);
+
+    await pool.query(
+      'INSERT INTO sync_logs (tipo, mensaje, exito, edificio_codigo, tecnico_id) VALUES ($1, $2, $3, $4, $5)',
+      ['info', `Sincronización reseteada por admin (edificio ${codigo})`, true, codigo, adminId]
+    );
+
+    res.json({
+      message: 'Sincronización reseteada correctamente',
+      edificio: { codigo, estado: 'pendiente' },
+    });
+  } catch (error) {
+    console.error('ResetSincronizacion error:', error);
+    res.status(500).json({ error: 'Error al resetear sincronización' });
+  }
+}
+
 module.exports = {
   getAll,
   getById,
@@ -396,4 +433,5 @@ module.exports = {
   getEdificiosPorTecnico,
   updateCoordenada: [validationMiddleware(coordenadaSchema), updateCoordenada],
   sincronizar,
+  resetSincronizacion,
 };
